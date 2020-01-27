@@ -17,12 +17,30 @@ class AnimationWidget(Widget):
 		self.angles = [[-90, 90] for _ in range(16)]
 		self.draw_circles()
 
-		Clock.schedule_interval(lambda _: self.change_angles(), 0.08)
+		self.anim_event = Clock.schedule_interval(lambda _: self.change_angles(), 0.05)
+
+		self._keyboard = Window.request_keyboard(self.keyboard_closed, self, 'text')
+		self.bind(on_touch_down=self.toggle_animation)
+		self._keyboard.bind(on_key_down=self.on_key_down)
+	
+	def keyboard_closed(self, *args):
+		print("Keyboard is closed")
+
+	def on_key_down(self, keyboard, keycode, text, modifiers):
+		if text == " ":
+			self.toggle_animation()
+
+	def toggle_animation(self, *args):
+		if self.anim_event.is_triggered:
+			self.anim_event.cancel()
+		else:
+			self.anim_event = Clock.schedule_interval(lambda _: self.change_angles(), 0.05)
 
 	def change_angles(self):
 		for i in range(16):
-			self.angles[i][0] += (i + 1) * 2
-			self.angles[i][1] += (i + 1) * 2
+			for j in range(2):
+				self.angles[i][j] += (i + 1) * 2
+
 		self.draw_circles()
 
 	def draw_circles(self):
